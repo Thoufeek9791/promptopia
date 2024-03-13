@@ -4,7 +4,7 @@ import { connectToDB } from "@utils/database";
 import User from "@models/user";
 
 
-
+//every next js route is a serverless route
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -13,6 +13,7 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
+    //for storing in session 
     async session({ session, token }) {
       // store the user id from MongoDB to session
       const sessionUser = await User.findOne({ email: session.user.email });
@@ -20,16 +21,15 @@ const handler = NextAuth({
 
       return session;
     },
+    //sign user
     async signIn({ profile }) {
       // this is a lambda function
-      try {
+            try {
         await connectToDB();
 
         //check if the user is already exists
-        console.log("before user exists",User)
         // const userExist = await User.findOne({ email: profile.email });
         const userExist = await User.findOne({email: profile.email})
-        console.log("after user exists")
         //if not connect a new user and store it in the database
         if (!userExist) {
           await User.create({
